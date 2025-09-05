@@ -5,6 +5,8 @@ import {PrivyProvider} from '@privy-io/react-auth';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {WagmiProvider} from '@privy-io/wagmi';
 import { config } from "@/utils/wagmiConfig";
+import Navbar from '../components/Navbar';
+
 
 const queryClient = new QueryClient();
 
@@ -26,7 +28,12 @@ export default function RootLayout({
       }}>
             <QueryClientProvider client={queryClient}>
                 <WagmiProvider config={config}>
-                    {children}
+                    <html>
+                        <body>
+                            <Navbar/>
+                            {children}
+                        </body>
+                    </html>
                 </WagmiProvider>
             </QueryClientProvider>
     </PrivyProvider>
