@@ -66,6 +66,7 @@ import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { useConnectWallet } from "@privy-io/react-auth";
 import { useAccount } from 'wagmi';
+import GetTokensButton from './GetTokens';
 
 // A UI component to display the wallet connection button.
 const WalletConnect = () => {
@@ -92,6 +93,8 @@ const WalletConnect = () => {
                         </svg>
                     </div>
                     <p className="text-sm font-mono break-words text-gray-700">{address.slice(0, 6)}...{address.slice(-4)}</p>
+
+                    <GetTokensButton/>
                 </div>
             ) : (
                 // Disconnected State: Show a prompt and the connect button

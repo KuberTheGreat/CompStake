@@ -7,6 +7,7 @@ import { TASK_ABI, TASK_ADDRESS, TOKEN_ABI, TOKEN_ADDRESS } from '@/utils/export
 import { config } from '@/utils/wagmiConfig';
 import { formatEther, parseUnits } from 'viem';
 import { sepolia } from 'viem/chains';
+import axios from 'axios';
 
 // Define the structure of a Task for better type safety
 interface Task {
@@ -79,19 +80,25 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ isPending, isSucc
     return null;
 };
 
-// Placeholder for your IPFS upload function
-const uploadFileToIPFS = async (file: File) => {
-    // This is a placeholder. You need to implement the actual IPFS upload logic here.
-    // Use a service like Pinata, Infura, or web3.storage to get a real CID.
-    // Example: const formData = new FormData(); formData.append('file', file);
-    // const response = await fetch('YOUR_IPFS_UPLOAD_ENDPOINT', { method: 'POST', body: formData });
-    // const result = await response.json();
-    // return result.cid;
+const uploadToPinata = async (file: File): Promise<string> => {
+    const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
 
-    console.log(`Uploading file ${file.name} to IPFS...`);
-    // Simulate a successful upload with a dummy CID
-    return 'QmWgWwT9L2k4XyF8o4gM4gV5J3V7V9gN1mH5b3V2n';
-};
+    const formData = new FormData();
+    formData.append("file", file);
+    console.log(process.env.PINATA_API_KEY)
+
+    const res = await axios.post(url, formData, {
+      maxBodyLength: Infinity,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        pinata_api_key: "75ca51bf7ba492e1eb3b",
+        pinata_secret_api_key: "0fe7a1db216fe45dff08797f3451cb35dc09b3fa92b4de808299e8037e006a18",
+      },
+    });
+    console.log(process.env.PINATA_API_KEY)
+
+    return `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}`;
+  };
 
 const TaskCard: React.FC<{ task: Task, walletAddress: string | undefined, stakePercentage: bigint | undefined }> = ({ task, walletAddress, stakePercentage }) => {
     const isVerified = task.state === 3;
@@ -232,7 +239,7 @@ const TaskCard: React.FC<{ task: Task, walletAddress: string | undefined, stakeP
 
         try {
             setIsUploading(true);
-            const outputCid = await uploadFileToIPFS(outputFile);
+            const outputCid = await uploadToPinata(outputFile);
             setIsUploading(false);
 
             setIsCompleting(true);
@@ -305,7 +312,7 @@ const TaskCard: React.FC<{ task: Task, walletAddress: string | undefined, stakeP
                     <div className="flex items-center">
                         <span className="w-24 text-gray-500">Input CID:</span>
                         <a
-                            href={`https://gateway.pinata.cloud${task.inputCid}`}
+                            href={`${task.inputCid}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline truncate w-64"
